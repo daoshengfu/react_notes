@@ -77,9 +77,9 @@
          * 2. setState为什么设计成异步？
          * github讨论：https://github.com/facebook/react/issues/11527
          * 主要原因：
-         *      1.同步setState会频繁触发render,性能差。异步批量setState性能更好.
-         *      2.为了保持props 和 state同步：同步setState时render可能还在进行比较，dom树还没更新，
-         *        那么子组件的props就不会进行更新。
+         *      1.同步setState会频繁触发render,性能差。异步顺序批量setState性能更好.
+         *      2.为了保证子组件props和父组件state的一致：当setState是同步时，state更新,render可能还没有重新调用，
+         *        dom树还没更新，自组件props还没更新。
         */
     </script>
 </body>
