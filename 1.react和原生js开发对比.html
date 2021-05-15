@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>react和原生js对比</title>
+    <style>
+        #box_wrap {
+            width: 500px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #box1,
+        #box2 {
+            width: 200px;
+            border: 1px dashed #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="box_wrap">
+        <div id="box1">
+            <h2>原生js</h2>
+            <p>hello word</p>
+            <button id="btn">change</button>
+        </div>
+        <div id="box2"></div>
+    </div>
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script>
+        //原生js
+        let output = 'hello word';
+        const oBox1 = document.querySelector('#box1')
+        const oBtn = oBox1.querySelector('#btn');
+        const pElement = oBox1.getElementsByTagName('p')[0];
+        oBtn.onclick = () => {
+            output = output === 'hello word' ? 'hello js' : 'hello word';
+            pElement.innerText = output;
+        }
+    </script>
+    <script type="text/babel">
+        class App extends React.Component {
+            constructor() {
+                super();
+                // this.output = 'hello word';状态写在state中
+                this.state = {
+                    output: 'hello word',
+                }
+            }
+
+            handleClick() {
+                const newOutput = this.state.output === 'hello word' ? 'hello react' : 'hello word';
+                // this.render();//render永远不能手动调用，只能react框架手动调用
+                this.setState({ output: newOutput })
+            }
+            render() {
+                return (
+                    <React.Fragment>
+                        <h2>React</h2>
+                        <p>{this.state.output}</p>
+                        <button id="btn" onClick={this.handleClick.bind(this)}>change</button>
+                    </React.Fragment>
+                )
+            }
+        }
+        //react
+        ReactDOM.render(<App />, document.querySelector('#box2'))
+    </script>
+</body>
+
+</html>

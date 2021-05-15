@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>jsx本质</title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <script type="text/babel">
+        class App extends React.Component {
+            constructor() {
+                super();
+                this.state = {
+                    count: 1,
+                }
+            }
+
+            increment = () => {
+                const count = this.state.count + 1;
+                this.setState({ count });
+            }
+            decrement = () => {
+                const count = this.state.count - 1;
+                this.setState({ count });
+            }
+
+            render() {
+                return (
+                    <React.Fragment>
+                        <h3>{this.state.count}</h3>
+                        <button onClick={this.increment}>+</button>
+                        {React.createElement('button', { onClick: this.decrement }, '-')}
+                    </React.Fragment>
+                );
+            }
+        }
+
+        ReactDOM.render(<App />, document.getElementById('app'));
+        /**
+        * jsx的本质是React.createElement的语法糖
+        * jsx ---> 通过babel进行转换 ---> React.createElement ---> virtual DOM
+        * ---> 通过ReactDOM.render将虚拟DOM和真实DOM进行映射
+        * 
+        * 为什么采用virtual DOM:
+        *   1.Virtual DOM状态更容易跟踪
+        *   2.原生频繁操作原生DOM性能很差，会频繁造成重排重绘
+        **/
+
+        //一些简单的实现
+        const RESERVEDPROPS = {
+            KEY: true,
+            REF: true,
+        }
+        function createElement(type, config, children) {
+            let ref = null, key = null, propsName;
+            const props = {};
+
+            if (config.ref) {
+                ref = config.ref;
+            }
+            if (config.key) {
+                key = config.key;
+            }
+            for (propsName in config) {
+                console.log(propsName);
+                if (config.hasOwnProperty(propsName) && !RESERVEDPROPS.hasOwnProperty(propsName)) {
+                    props[propsName] = config[propsName];
+                }
+            }
+
+            //处理children：上面例子中render将被转换为
+            // React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h3", null, (void 0).state.count), /*#__PURE__*/React.createElement("button", {
+            //     onClick: (void 0).increment
+            // }, "+"), React.createElement('button', {
+            //     onClick: (void 0).decrement
+            // }, '-'));
+            const childrenLength = arguments.length - 2;
+            if (childrenLength === 1) {
+                props.children = children;
+            } else if (childrenLength > 1) {
+                const chidlrenArray = new Array(childrenLength);
+                for (let i = 0; i < childrenLength; i++) {
+                    chidlrenArray[i] = arguments[i + 2];
+                }
+                props.children = chidlrenArray;
+            }
+
+            //default props
+            if (type && type.defaultProps) {
+                const defaultProps = type.defaultProps;
+                for (propsName in defaultProps) {
+                    if (props[propsName] === undefined) {
+                        props[propsName] = defaultProps[propsName];
+                    }
+                }
+            }
+
+            return {
+                ref,
+                key,
+                props,
+            }
+        }
+
+        //测试
+        const results = createElement("button", {
+            onClick: () => {
+                console.log('---');
+            }
+        }, "+");
+        console.log(results);
+    </script>
+</body>
+
+</html>

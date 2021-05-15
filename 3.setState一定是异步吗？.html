@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>setState一定是异步的吗？</title>
+    <style>
+        button {
+            margin: 4px 10px 4px 0;
+            height: 32px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script type="text/babel">
+        class App extends React.Component {
+            constructor() {
+                super();
+                this.state = {
+                    count: 1,
+                }
+            }
+
+            componentDidMount() {
+                const syncBtn = document.getElementById('sync_btn2');
+                syncBtn.addEventListener('click', () => {
+                    const count = this.state.count - 1;
+                    this.setState({ count });
+                    console.log('sync-2', this.state.count);
+                })
+            }
+
+            increment = () => {
+                const count = this.state.count + 1;
+                this.setState({ count });
+                console.log('async', this.state.count);
+            }
+            decrement = () => {
+                // const count = this.state.count - 1;
+                // this.setState({ count });
+
+                //同步写法1：将setState放在setTimeout中setState就是同步的
+                setTimeout(() => {
+                    const count = this.state.count - 1;
+                    this.setState({ count });
+                    console.log('sync', this.state.count);
+                }, 0)
+            }
+
+            render() {
+                return (
+                    <React.Fragment>
+                        <h3>{this.state.count}</h3>
+                        <button onClick={this.increment}>+</button>
+                        <button onClick={this.decrement}>sync button1：-</button>
+                        <button id="sync_btn2">sync button2: -</button>
+                    </React.Fragment>
+                );
+            }
+        }
+
+        ReactDOM.render(<App />, document.getElementById('app'));
+
+        /**
+         * notes:
+         * 1.react setState 并不完全是异步的，在一定情况下setState是同步的（如上：setTimeout,
+         * 原生事件中）就是同步的，但是一般情况下setState都是异步的。
+         * 
+         * 2. setState为什么设计成异步？
+         * 
+        */
+    </script>
+</body>
+
+</html>
